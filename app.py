@@ -6,6 +6,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from sqlalchemy import false
 
 app = Flask(__name__)
 
@@ -81,21 +82,27 @@ def login():
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
-        data = request.form
+        data = request.get_json()
         name = data.get('name')
         email = data.get('email')
         password = data.get('password')
         role = data.get('role')
-  
+
+        if not name or not email or not password or not role:
+            return jsonify({'message': 'Please pass all details!'}), 400
+
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return jsonify({'message': 'Email already registered'}), 400
- 
+
         new_user = User(name=name, email=email, password=password, role=role)
         db.session.add(new_user)
         db.session.commit()
+        
+        return jsonify({'message': 'User created successfully!'}),201
 
-    return jsonify({'message': 'User created successfully!'}), 201
+    return jsonify({'message': 'Please send a POST request to create a user.'}), 200
+
 
 
 @app.route('/signout', methods=['POST'])
@@ -227,4 +234,4 @@ def update(b_id):
 
 
 if __name__=="__main__":
-    app.run(debug=True,port=8080)
+    app.run(debug=False,host="0.0.0.0",port=8080)
