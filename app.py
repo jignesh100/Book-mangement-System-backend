@@ -56,7 +56,7 @@ with app.app_context():
 app.config["JWT_SECRET_KEY"] = "super-secret" 
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
-app.config['JWT_HEADER_NAME'] = 'Authorization'
+app.config['JWT_HEADER_NAME'] = 'X-App-Token'  
 app.config['JWT_HEADER_TYPE'] = 'Bearer'
 
 jwt = JWTManager(app)
@@ -124,7 +124,7 @@ def refresh():
     return jsonify(access_token=new_access_token), 200
 
 
-@app.route('/dashboard',methods=["POST"])
+@app.route('/dashboard',methods=["POST","GET"])
 @jwt_required()
 def dashboard():
     c_user=get_jwt_identity()
